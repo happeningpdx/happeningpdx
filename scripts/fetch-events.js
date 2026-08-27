@@ -26,7 +26,7 @@ function mapCategory(cls) {
   if (seg === 'music') return 'music';
   if (seg === 'sports') return 'sports';
   if (seg === 'arts & theatre') {
-    if (genre.includes('comedy')) return 'nightlife';
+    if (genre.includes('comedy')) return 'comedy';
     return 'art';
   }
   if (seg === 'family') return 'community';
@@ -173,7 +173,7 @@ function decodeEntities(s) {
 }
 function guessCategory(name) {
   const s = (name || '').toLowerCase();
-  if (/comedy|improv|stand-?up/.test(s)) return 'nightlife';
+  if (/comedy|improv|stand-?up/.test(s)) return 'comedy';
   if (/market|bazaar|swap|flea/.test(s)) return 'market';
   if (/street fair|festival|fest\b/.test(s)) return 'festival';
   if (/gallery|art walk|exhibit|museum/.test(s)) return 'art';
