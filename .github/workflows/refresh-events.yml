@@ -1,1 +1,26 @@
-
+name: Refresh events
+"on":
+  schedule:
+    - cron: "17 13 * * *"
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Fetch events
+        run: node scripts/fetch-events.js
+        env:
+          TM_API_KEY: ${{ secrets.TM_API_KEY }}
+      - name: Commit if changed
+        run: |
+          git config user.name "events-bot"
+          git config user.email "bot@happeningpdx"
+          git add events.json
+          git diff --cached --quiet || git commit -m "refresh events"
+          git push
