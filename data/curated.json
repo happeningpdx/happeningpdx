@@ -1,0 +1,422 @@
+[
+ {
+  "id": 4,
+  "url": "https://www.crystalballroompdx.com",
+  "t": "music",
+  "n": "Essie & The Hun + Johnny Franco",
+  "v": "Crystal Ballroom",
+  "a": "1332 W Burnside St",
+  "d": "Fri Jul 31 2026 - 7:00 PM",
+  "p": "$42",
+  "age": "All ages",
+  "src": "McMenamins",
+  "promo": false,
+  "lat": 45.52314,
+  "lng": -122.68506,
+  "desc": "Indie-folk and rock triple bill with Cafe Humm opening.",
+  "tags": [
+   "indie folk",
+   "local"
+  ]
+ },
+ {
+  "id": 13,
+  "url": "https://jacklondonrevue.com",
+  "t": "music",
+  "n": "Mel Brown B3 Organ Group",
+  "v": "Jack London Revue",
+  "a": "529 SW 4th Ave",
+  "d": "Thursdays - 7:00 PM",
+  "p": "See tickets",
+  "age": "21+",
+  "src": "Venue site",
+  "promo": false,
+  "lat": 45.5178,
+  "lng": -122.6742,
+  "desc": "Portland jazz legend's weekly Jazz Titan Thursdays residency.",
+  "tags": [
+   "jazz",
+   "weekly"
+  ]
+ },
+ {
+  "id": 16,
+  "url": "https://www.danteslive.com",
+  "t": "nightlife",
+  "n": "Sinferno Cabaret",
+  "v": "Dante's",
+  "a": "350 W Burnside St",
+  "d": "Sundays - 8:00 PM",
+  "p": "See tickets",
+  "age": "21+",
+  "src": "Venue site",
+  "promo": false,
+  "lat": 45.52302,
+  "lng": -122.67398,
+  "desc": "Portland's long-running Sunday fire-and-sideshow cabaret.",
+  "tags": [
+   "cabaret",
+   "weekly"
+  ]
+ },
+ {
+  "id": 20,
+  "url": "https://thesquarepdx.org",
+  "t": "community",
+  "n": "Noon Tunes",
+  "v": "Pioneer Courthouse Square",
+  "a": "701 SW 6th Ave",
+  "d": "Tuesdays in July - 12:00 PM",
+  "p": "Free",
+  "age": "All ages",
+  "src": "PDX Pipeline",
+  "promo": false,
+  "lat": 45.5189,
+  "lng": -122.6795,
+  "desc": "Free lunchtime concerts in Portland's living room.",
+  "tags": [
+   "free",
+   "lunchtime"
+  ]
+ },
+ {
+  "id": 22,
+  "url": "https://www.portland5.com/events",
+  "t": "community",
+  "n": "Music on Main: Low Bar Chorale",
+  "v": "Main St at the Schnitz",
+  "a": "SW Main & Broadway",
+  "d": "Wed Jul 29 2026 - 5:00 PM",
+  "p": "Free",
+  "age": "All ages",
+  "src": "Portland5",
+  "promo": false,
+  "lat": 45.51602,
+  "lng": -122.68128,
+  "desc": "Interactive live sing-along on the street, free.",
+  "tags": [
+   "free",
+   "singalong"
+  ]
+ },
+ {
+  "id": 23,
+  "url": "https://jamo.org",
+  "t": "community",
+  "n": "Free First Sunday",
+  "v": "Japanese American Museum of Oregon",
+  "a": "411 NW Flanders St",
+  "d": "Sun Aug 2 2026 - 11AM-4PM",
+  "p": "Free",
+  "age": "All ages",
+  "src": "PDX Pipeline",
+  "promo": false,
+  "lat": 45.525,
+  "lng": -122.6733,
+  "desc": "Free museum admission the first Sunday of each month.",
+  "tags": [
+   "free",
+   "museum"
+  ]
+ },
+ {
+  "id": 24,
+  "url": "https://www.firstthursdayportland.com",
+  "t": "art",
+  "n": "First Thursday Art Walk",
+  "v": "Pearl District",
+  "a": "NW 13th & Everett St",
+  "d": "Thu Aug 6 2026 - 6:00 PM",
+  "p": "Free",
+  "age": "All ages",
+  "src": "First Thursday",
+  "promo": false,
+  "lat": 45.5252,
+  "lng": -122.6846,
+  "desc": "Galleries across the Pearl open new shows with receptions.",
+  "tags": [
+   "gallery",
+   "free"
+  ]
+ },
+ {
+  "id": 25,
+  "url": "https://albertamainst.org",
+  "t": "art",
+  "n": "Last Thursday on Alberta",
+  "v": "Alberta Arts District",
+  "a": "NE Alberta St",
+  "d": "Thu Jul 30 2026 - 6:00 PM",
+  "p": "Free",
+  "age": "All ages",
+  "src": "PDX Pipeline",
+  "promo": false,
+  "lat": 45.5589,
+  "lng": -122.645,
+  "desc": "Gallery openings, live music and DJs along Alberta Street, 6-9pm.",
+  "tags": [
+   "gallery",
+   "street fair"
+  ]
+ },
+ {
+  "id": 26,
+  "url": "https://portlandartmuseum.org",
+  "t": "art",
+  "n": "Portland Art Museum",
+  "v": "Portland Art Museum",
+  "a": "1219 SW Park Ave",
+  "d": "Wednesdays-Sundays - 10AM-5PM",
+  "p": "$25",
+  "age": "All ages",
+  "src": "Venue site",
+  "promo": false,
+  "lat": 45.5161,
+  "lng": -122.6832,
+  "desc": "The Northwest's oldest art museum, five days a week.",
+  "tags": [
+   "museum",
+   "permanent"
+  ]
+ },
+ {
+  "id": 29,
+  "url": "https://www.pdxpipeline.com",
+  "t": "food",
+  "n": "Butcher's Burger at Meatstuff",
+  "v": "Meatstuff",
+  "a": "SE Foster Rd",
+  "d": "Fri Jul 31 2026 - 4:00 PM",
+  "p": "Varies",
+  "age": "All ages",
+  "src": "PDX Pipeline",
+  "promo": false,
+  "lat": 45.4945,
+  "lng": -122.608,
+  "desc": "Fresh local beef burger pop-up, 4-8pm at the SE Foster butcher shop.",
+  "tags": [
+   "popup",
+   "burgers"
+  ]
+ },
+ {
+  "id": 30,
+  "url": "https://www.portlandmercado.org",
+  "t": "food",
+  "n": "Portland Mercado food carts",
+  "v": "Portland Mercado",
+  "a": "7238 SE Foster Rd",
+  "d": "Daily - 11AM-9PM",
+  "p": "Varies",
+  "age": "All ages",
+  "src": "Venue site",
+  "promo": false,
+  "lat": 45.4795,
+  "lng": -122.5895,
+  "desc": "Latin American food carts, market and bar, open every day.",
+  "tags": [
+   "food carts",
+   "latin"
+  ]
+ },
+ {
+  "id": 31,
+  "url": "https://www.portlandsaturdaymarket.com",
+  "t": "market",
+  "n": "Portland Saturday Market",
+  "v": "Waterfront Park",
+  "a": "2 SW Naito Pkwy",
+  "d": "Saturdays & Sundays",
+  "p": "Free entry",
+  "age": "All ages",
+  "src": "Venue site",
+  "promo": false,
+  "lat": 45.5224,
+  "lng": -122.6699,
+  "desc": "Largest open-air arts and crafts market in the US, since 1974.",
+  "tags": [
+   "crafts",
+   "weekly"
+  ]
+ },
+ {
+  "id": 32,
+  "url": "https://www.portlandfarmersmarket.org",
+  "t": "market",
+  "n": "PSU Portland Farmers Market",
+  "v": "PSU South Park Blocks",
+  "a": "SW Park & Montgomery",
+  "d": "Saturdays - 8:30AM-2PM",
+  "p": "Free entry",
+  "age": "All ages",
+  "src": "Venue site",
+  "promo": false,
+  "lat": 45.5121,
+  "lng": -122.6835,
+  "desc": "The city's flagship farmers market under the elms.",
+  "tags": [
+   "farmers market",
+   "weekly"
+  ]
+ },
+ {
+  "id": 33,
+  "url": "https://www.beavertonfarmersmarket.com",
+  "t": "market",
+  "n": "Beaverton Farmers Market",
+  "v": "Beaverton Farmers Market",
+  "a": "12375 SW 5th St, Beaverton",
+  "d": "Saturdays - 9AM-1:30PM",
+  "p": "Free entry",
+  "age": "All ages",
+  "src": "Venue site",
+  "promo": false,
+  "lat": 45.4848,
+  "lng": -122.8041,
+  "desc": "One of the largest ag-only markets in the Northwest.",
+  "tags": [
+   "farmers market",
+   "weekly"
+  ]
+ },
+ {
+  "id": 34,
+  "url": "https://www.oregonzoo.org",
+  "t": "outdoor",
+  "n": "Wild Wednesdays: Island Time",
+  "v": "Oregon Zoo",
+  "a": "4001 SW Canyon Rd",
+  "d": "Wednesdays in July - 6:00 PM",
+  "p": "Zoo admission",
+  "age": "All ages",
+  "src": "PDX Pipeline",
+  "promo": false,
+  "lat": 45.5098,
+  "lng": -122.716,
+  "desc": "Zoo open late with music and summer programming.",
+  "tags": [
+   "zoo",
+   "evenings"
+  ]
+ },
+ {
+  "id": 35,
+  "url": "https://www.portland.gov/parks",
+  "t": "outdoor",
+  "n": "Lower Macleay Trail",
+  "v": "Forest Park",
+  "a": "NW 29th Ave & Upshur St",
+  "d": "Daily - dawn to dusk",
+  "p": "Free",
+  "age": "All ages",
+  "src": "Portland Parks",
+  "promo": false,
+  "lat": 45.5359,
+  "lng": -122.7124,
+  "desc": "Classic creekside entrance to 5,200-acre Forest Park.",
+  "tags": [
+   "hiking",
+   "free"
+  ]
+ },
+ {
+  "id": 36,
+  "url": "https://pickathon.com",
+  "t": "festival",
+  "n": "Pickathon 2026",
+  "v": "Pendarvis Farm",
+  "a": "16581 SE Hagen Rd, Happy Valley",
+  "d": "Jul 30-Aug 2 2026",
+  "p": "See tickets",
+  "age": "All ages",
+  "src": "Festival site",
+  "promo": true,
+  "lat": 45.462,
+  "lng": -122.503,
+  "desc": "The beloved indie roots festival in the woods, zero single-use.",
+  "tags": [
+   "festival",
+   "camping"
+  ]
+ },
+ {
+  "id": 5,
+  "url": "https://www.crystalballroompdx.com",
+  "t": "music",
+  "n": "Osees w/ Traps PS",
+  "v": "Crystal Ballroom",
+  "a": "1332 W Burnside St",
+  "d": "Mon Aug 31 2026 - 8:00 PM",
+  "p": "$46-$60",
+  "age": "All ages",
+  "src": "Ticketmaster",
+  "promo": false,
+  "lat": 45.52306,
+  "lng": -122.68514,
+  "desc": "John Dwyer's relentless garage-psych machine, back in Portland.",
+  "tags": [
+   "garage rock",
+   "psych"
+  ]
+ },
+ {
+  "id": 19,
+  "url": "https://www.portland5.com/events",
+  "t": "nightlife",
+  "n": "Ali Wong Live",
+  "v": "Arlene Schnitzer Concert Hall",
+  "a": "1037 SW Broadway",
+  "d": "Aug 7-8 2026",
+  "p": "See tickets",
+  "age": "See site",
+  "src": "Portland5",
+  "promo": false,
+  "lat": 45.51572,
+  "lng": -122.68158,
+  "desc": "Two nights of stand-up at the Schnitz.",
+  "tags": [
+   "comedy",
+   "standup"
+  ]
+ },
+ {
+  "id": 28,
+  "url": "https://www.portland5.com/events",
+  "t": "art",
+  "n": "Harry Potter and the Cursed Child",
+  "v": "Keller Auditorium",
+  "a": "222 SW Clay St",
+  "d": "Aug 1-15 2026",
+  "p": "See tickets",
+  "age": "All ages",
+  "src": "Portland5",
+  "promo": false,
+  "lat": 45.51062,
+  "lng": -122.67898,
+  "desc": "The stage epic lands in Portland for a two-week run.",
+  "tags": [
+   "broadway",
+   "theater"
+  ]
+ },
+ {
+  "id": 37,
+  "url": "https://www.wnba.com",
+  "t": "sports",
+  "n": "Portland Fire home game",
+  "v": "Moda Center",
+  "a": "1 N Center Ct St",
+  "d": "Fri Jul 31 2026",
+  "p": "See tickets",
+  "age": "All ages",
+  "src": "PDX Pipeline",
+  "promo": false,
+  "lat": 45.5317,
+  "lng": -122.6669,
+  "desc": "Portland's WNBA expansion team plays at home.",
+  "tags": [
+   "wnba",
+   "basketball"
+  ]
+ }
+]

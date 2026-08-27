@@ -1,0 +1,13 @@
+[
+ {
+  "_comment": "Add any public iCal/.ics URL. Most venue Google Calendars and org sites expose one ('Add to calendar' links). category: music|art|food|outdoor|community|nightlife|market|wellness|festival|sports. Optional venue/lat/lng override events missing location data.",
+  "_example": {
+   "url": "https://calendar.google.com/calendar/ical/EXAMPLE/public/basic.ics",
+   "category": "community",
+   "venue": "Example Hall",
+   "lat": 45.52,
+   "lng": -122.67,
+   "enabled": false
+  }
+ }
+]

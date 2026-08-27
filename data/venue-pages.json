@@ -1,0 +1,85 @@
+[
+ {
+  "_comment": "Point at any venue's events page. The pipeline extracts schema.org Event data that sites embed for Google. Set enabled:false to pause one. 'venue' and lat/lng override page data; 'category' overrides auto-detection. Check the Action log for [jsonld] lines to see which sites work."
+ },
+ {
+  "url": "https://dougfirlounge.com/calendar/",
+  "venue": "Doug Fir Lounge",
+  "category": "music",
+  "lat": 45.5228,
+  "lng": -122.6565,
+  "enabled": true
+ },
+ {
+  "url": "https://www.mississippistudios.com/calendar/",
+  "venue": "Mississippi Studios",
+  "category": "music",
+  "lat": 45.551,
+  "lng": -122.6755,
+  "enabled": true
+ },
+ {
+  "url": "https://holocene.org/events/",
+  "venue": "Holocene",
+  "category": "nightlife",
+  "lat": 45.5165,
+  "lng": -122.6551,
+  "enabled": true
+ },
+ {
+  "url": "https://aladdin-theater.com/events/",
+  "venue": "Aladdin Theater",
+  "category": "music",
+  "lat": 45.5028,
+  "lng": -122.6534,
+  "enabled": true
+ },
+ {
+  "url": "https://www.revolutionhall.com/calendar/",
+  "venue": "Revolution Hall",
+  "category": "music",
+  "lat": 45.5192,
+  "lng": -122.6531,
+  "enabled": true
+ },
+ {
+  "url": "https://www.polarishallpdx.com/events",
+  "venue": "Polaris Hall",
+  "category": "music",
+  "lat": 45.5559,
+  "lng": -122.6767,
+  "enabled": true
+ },
+ {
+  "url": "https://albertarosetheatre.com/events/",
+  "venue": "Alberta Rose Theatre",
+  "category": "music",
+  "lat": 45.5589,
+  "lng": -122.651,
+  "enabled": true
+ },
+ {
+  "url": "https://www.hollywoodtheatre.org/calendar/",
+  "venue": "Hollywood Theatre",
+  "category": "art",
+  "lat": 45.5349,
+  "lng": -122.6217,
+  "enabled": true
+ },
+ {
+  "url": "https://www.crystalballroompdx.com/calendar/",
+  "venue": "Crystal Ballroom",
+  "category": "music",
+  "lat": 45.5231,
+  "lng": -122.6851,
+  "enabled": true
+ },
+ {
+  "url": "https://wonderballroom.com/calendar/",
+  "venue": "Wonder Ballroom",
+  "category": "music",
+  "lat": 45.5412,
+  "lng": -122.6603,
+  "enabled": true
+ }
+]
