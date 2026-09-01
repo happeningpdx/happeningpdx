@@ -1,30 +1,22 @@
-bash
-
-echo '========== BEGIN data/venue-pages.json =========='
-cat /mnt/user-data/outputs/happeningpdx-repo/data/venue-pages.json
-echo '========== END data/venue-pages.json =========='
-Output
-
-========== BEGIN data/venue-pages.json ==========
 [
  {
-  "_comment": "Venue event-calendar pages. Pipeline extracts schema.org Event data embedded for Google. ETIX VENUES: use per-venue upcoming-events URL https://www.etix.com/ticket/mvc/online/upcomingEvents/venue?venue_id=ID (find numeric ID from any venue etix link, e.g. etix.com/ticket/v/16896/ -> 16896). enabled:false pauses one. 'venue'+lat/lng override page data; 'category' overrides auto-detect. Watch [jsonld] log lines: 'N found, N kept'=working; '0 found'=no structured data; 'HTTP 4xx'=blocked/wrong URL."
+  "_comment": "Venue-page scrapers are DISABLED. Across many runs every venue returned 0 events (404 / 403 / 0-found / JS-rendered pages our fetcher can't read). Kept here disabled in case a future approach revives them. Working sources are Ticketmaster + Calagator + SeatGeek + curated.json. For a specific venue show, add it via the Listing Converter to curated.json. To retry a venue, set its enabled:true and watch the [jsonld] log line."
  },
  {
   "url": "https://www.etix.com/ticket/mvc/online/upcomingEvents/venue?venue_id=16896",
   "venue": "Mississippi Studios",
   "category": "music",
-  "lat": 45.5510,
+  "lat": 45.551,
   "lng": -122.6755,
-  "enabled": true
+  "enabled": false
  },
  {
   "url": "https://www.etix.com/ticket/mvc/online/upcomingEvents/venue?venue_id=16897",
   "venue": "Revolution Hall",
   "category": "music",
-  "lat": 45.5190,
+  "lat": 45.519,
   "lng": -122.6542,
-  "enabled": true
+  "enabled": false
  },
  {
   "_comment_todo": "Aladdin, Holocene, Polaris Hall are also Etix venues. Add each once its numeric venue_id is known (visit venue Etix ticket page, read /v/NUMBER/). Disabled until confirmed so they don't error the log.",
@@ -57,7 +49,7 @@ Output
   "category": "music",
   "lat": 45.5228,
   "lng": -122.6565,
-  "enabled": true
+  "enabled": false
  },
  {
   "url": "https://wonderballroom.com/calendar/",
@@ -65,7 +57,7 @@ Output
   "category": "music",
   "lat": 45.5412,
   "lng": -122.6603,
-  "enabled": true
+  "enabled": false
  },
  {
   "url": "https://www.crystalballroompdx.com/calendar/",
@@ -73,15 +65,14 @@ Output
   "category": "music",
   "lat": 45.5231,
   "lng": -122.6851,
-  "enabled": true
+  "enabled": false
  },
  {
   "url": "https://albertarosetheatre.com/events/",
   "venue": "Alberta Rose Theatre",
   "category": "music",
   "lat": 45.5589,
-  "lng": -122.6510,
-  "enabled": true
+  "lng": -122.651,
+  "enabled": false
  }
 ]
-========== END data/venue-pages.json ==========
