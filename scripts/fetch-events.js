@@ -1,3 +1,11 @@
+bash
+
+echo '========== BEGIN scripts/fetch-events.js =========='
+cat /mnt/user-data/outputs/happeningpdx-repo/scripts/fetch-events.js
+echo '========== END scripts/fetch-events.js =========='
+Output
+
+========== BEGIN scripts/fetch-events.js ==========
 #!/usr/bin/env node
 /**
  * happeningpdx event pipeline
@@ -305,6 +313,47 @@ function ldImage(img) {
   if (Array.isArray(img)) return ldImage(img[0]);
   return img.url || '';
 }
+// Etix venue upcoming-events pages list shows as anchor links. Extract title + date + id.
+// Returns objects shaped like schema.org Events so the main loop handles them uniformly.
+function parseEtixList(html, page) {
+  const out = [];
+  const seen = new Set();
+  // Each show links to /ticket/p/{numericId}/{slug}; title is the anchor text.
+  const re = /<a[^>]+href="([^"]*\/ticket\/p\/(\d+)\/[^"]*)"[^>]*>([\s\S]*?)<\/a>([\s\S]{0,400}?)(?=<a[^>]+href="[^"]*\/ticket\/p\/|$)/g;
+  let m;
+  const MONTHS = { jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11 };
+  while ((m = re.exec(html))) {
+    const href = m[1], id = m[2];
+    const title = decodeEntities(m[3].replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim());
+    if (!title || title.length < 3 || seen.has(id)) continue;
+    // Look for a date in the trailing chunk: "Fri, Aug 21, 2026" / "Aug 21" / "8/21/2026"
+    const chunk = m[4].replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ');
+    let dt = null;
+    let dm = chunk.match(/([A-Za-z]{3,})\.?\s+(\d{1,2})(?:,?\s+(\d{4}))?/);
+    if (dm && MONTHS[dm[1].slice(0,3).toLowerCase()] !== undefined) {
+      const mo = MONTHS[dm[1].slice(0,3).toLowerCase()];
+      const day = +dm[2];
+      let yr = dm[3] ? +dm[3] : new Date().getFullYear();
+      dt = new Date(yr, mo, day, 20, 0);
+      if (!dm[3] && dt.getTime() < Date.now() - 45 * 86400000) dt = new Date(yr + 1, mo, day, 20, 0);
+    } else {
+      dm = chunk.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      if (dm) dt = new Date(+dm[3], +dm[1] - 1, +dm[2], 20, 0);
+    }
+    if (!dt || isNaN(dt)) continue;
+    seen.add(id);
+    out.push({
+      '@type': 'Event',
+      name: title,
+      startDate: dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0') + 'T20:00',
+      url: href.startsWith('http') ? href : 'https://www.etix.com' + href,
+      location: { name: page.venue },
+    });
+    if (out.length >= 40) break;
+  }
+  return out;
+}
+
 async function fetchVenuePages() {
   let cfg = [];
   try { cfg = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'venue-pages.json'), 'utf8')); } catch (e) { return []; }
@@ -316,7 +365,12 @@ async function fetchVenuePages() {
       const res = await fetch(page.url, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; happeningpdxBot/1.0; +https://happeningpdx.netlify.app)' } });
       if (!res.ok) { console.log(`[jsonld] ${page.url} -> HTTP ${res.status}`); continue; }
       const html = await res.text();
-      const found = jsonLdEvents(html);
+      let found = jsonLdEvents(html);
+      // Etix fallback: their venue upcoming-events page lists shows as /ticket/p/{id}/{slug}
+      // links with the show title as anchor text and a nearby date. Parse when JSON-LD is thin.
+      if (found.length === 0 && /etix\.com/.test(page.url)) {
+        found = parseEtixList(html, page);
+      }
       let kept = 0, noCoords = 0;
       for (const n of found) {
         const sd = String(n.startDate).match(/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?/);
@@ -553,3 +607,4 @@ function main() {
 }
 
 main().catch(e => { console.error(e); process.exit(1); });
+========== END scripts/fetch-events.js ==========
