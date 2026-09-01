@@ -1,3 +1,11 @@
+bash
+
+echo '========== BEGIN index.html =========='
+cat /mnt/user-data/outputs/happeningpdx-repo/index.html
+echo '========== END index.html =========='
+Output
+
+========== BEGIN index.html ==========
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -83,6 +91,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 .chip[data-t=wellness].on{background:#16a34a}
 .chip[data-t=festival].on{background:#db2777}
 .chip[data-t=sports].on{background:#2563eb}
+.chip[data-t=comedy].on{background:#f59e0b}
 @media(max-width:600px){
   .hdr{gap:8px;padding:0 10px}
   .logo-beta{display:none}
@@ -270,6 +279,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
   <div class="chip" data-t="outdoor" onclick="setFilter('outdoor',this)"><span class="cdot" style="background:#059669"></span>Outdoor</div>
   <div class="chip" data-t="community" onclick="setFilter('community',this)"><span class="cdot" style="background:#0284c7"></span>Community</div>
   <div class="chip" data-t="nightlife" onclick="setFilter('nightlife',this)"><span class="cdot" style="background:#ea580c"></span>Nightlife</div>
+  <div class="chip" data-t="comedy" onclick="setFilter('comedy',this)"><span class="cdot" style="background:#f59e0b"></span>Comedy</div>
   <div class="chip" data-t="market" onclick="setFilter('market',this)"><span class="cdot" style="background:#ca8a04"></span>Markets</div>
   <div class="chip" data-t="wellness" onclick="setFilter('wellness',this)"><span class="cdot" style="background:#16a34a"></span>Wellness</div>
   <div class="chip" data-t="festival" onclick="setFilter('festival',this)"><span class="cdot" style="background:#db2777"></span>Festivals</div>
@@ -479,10 +489,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 <script>
 window.onerror=function(m,s,l){if(!s&&l===0)return true;return false;};
 
-var C={music:'#e0457a',art:'#7c3aed',food:'#d97706',outdoor:'#059669',community:'#0284c7',nightlife:'#ea580c',market:'#ca8a04',wellness:'#16a34a',festival:'#db2777',sports:'#2563eb'};
-var CNAME={music:'Music',art:'Art',food:'Food & Drink',outdoor:'Outdoor',community:'Community',nightlife:'Nightlife',market:'Market',wellness:'Wellness',festival:'Festival',sports:'Sports'};
-var CICON={music:'&#127925;',art:'&#127912;',food:'&#127866;',outdoor:'&#127807;',community:'&#129309;',nightlife:'&#127881;',market:'&#128717;',wellness:'&#129496;',festival:'&#127914;',sports:'&#9917;'};
-var CL={music:'M',art:'A',food:'F',outdoor:'O',community:'C',nightlife:'N',market:'K',wellness:'W',festival:'V',sports:'S'};
+var C={music:'#e0457a',art:'#7c3aed',food:'#d97706',outdoor:'#059669',community:'#0284c7',nightlife:'#ea580c',market:'#ca8a04',wellness:'#16a34a',festival:'#db2777',sports:'#2563eb',comedy:'#f59e0b'};
+var CNAME={music:'Music',art:'Art',food:'Food & Drink',outdoor:'Outdoor',community:'Community',nightlife:'Nightlife',market:'Market',wellness:'Wellness',festival:'Festival',sports:'Sports',comedy:'Comedy'};
+var CICON={music:'&#127925;',art:'&#127912;',food:'&#127866;',outdoor:'&#127807;',community:'&#129309;',nightlife:'&#127881;',market:'&#128717;',wellness:'&#129496;',festival:'&#127914;',sports:'&#9917;',comedy:'&#127917;'};
+var CL={music:'M',art:'A',food:'F',outdoor:'O',community:'C',nightlife:'N',market:'K',wellness:'W',festival:'V',sports:'S',comedy:'Y'};
 var EVENTS=[
  {id:4,url:"https://www.crystalballroompdx.com",t:"music",n:"Essie & The Hun + Johnny Franco",v:"Crystal Ballroom",a:"1332 W Burnside St",d:"Fri Jul 31 2026 - 7:00 PM",p:"$42",age:"All ages",src:"McMenamins",promo:false,lat:45.52314,lng:-122.68506,desc:"Indie-folk and rock triple bill with Cafe Humm opening.",tags:["indie folk", "local"],nb:[5, 24, 20]},
  {id:13,url:"https://jacklondonrevue.com",t:"music",n:"Mel Brown B3 Organ Group",v:"Jack London Revue",a:"529 SW 4th Ave",d:"Thursdays - 7:00 PM",p:"See tickets",age:"21+",src:"Venue site",promo:false,lat:45.5178,lng:-122.6742,desc:"Portland jazz legend's weekly Jazz Titan Thursdays residency.",tags:["jazz", "weekly"],nb:[16, 20, 31]},
@@ -1798,7 +1808,7 @@ function initMapbox(){
   mbMap.on('click',function(){closePop();});
 }
 
-var CL2={music:'M',art:'A',food:'F',outdoor:'O',community:'C',nightlife:'N',market:'K',wellness:'W',festival:'V',sports:'S'};
+var CL2={music:'M',art:'A',food:'F',outdoor:'O',community:'C',nightlife:'N',market:'K',wellness:'W',festival:'V',sports:'S',comedy:'Y'};
 
 function makePinEl(ev){
   var c=C[ev.t];
@@ -1828,7 +1838,7 @@ function makeClusterEl(members){
     if((spreadLat<0.0004&&spreadLng<0.0004)||mbMap.getZoom()>=15.8){
       showVenuePop(members);
     } else {
-      mbMap.fitBounds([[Math.min.apply(null,lngs),Math.min.apply(null,lats)],[Math.max.apply(null,lngs),Math.max.apply(null,lats)]],{padding:90,maxZoom:16,duration:520});
+      mbMap.fitBounds([[Math.min.apply(null,lngs),Math.min.apply(null,lats)],[Math.max.apply(null,lngs),Math.max.apply(null,lats)]],{padding:80,maxZoom:17,duration:520});
     }
   });
   return el;
@@ -1899,9 +1909,19 @@ function refreshMapData(){
 
 // Screen-space greedy clustering over the FULL filtered set.
 // Pan never regroups (translation-invariant); zoom and filters do.
-var CLUSTER_PX=54;
+// Cluster radius shrinks as you zoom in, so real venues separate at neighborhood zoom.
+// Wide at city level (dots don't overwhelm), tight when zoomed in (individual venues emerge).
+function clusterRadiusPx(){
+  var z=mbMap.getZoom();
+  if(z>=16)return 26;   // block level - only true same-address events group
+  if(z>=15)return 34;
+  if(z>=14)return 42;
+  if(z>=12)return 52;
+  return 60;            // city level
+}
 function rebuildClusters(){
   if(!mbMap)return;
+  var R=clusterRadiusPx();
   var pts=mbFiltered.map(function(ev){return {ev:ev,pt:mbMap.project([ev.lng,ev.lat])};});
   var used=new Array(pts.length),groups=[];
   for(var i=0;i<pts.length;i++){
@@ -1911,7 +1931,7 @@ function rebuildClusters(){
     for(var j=i+1;j<pts.length;j++){
       if(used[j])continue;
       var dx=pts[i].pt.x-pts[j].pt.x,dy=pts[i].pt.y-pts[j].pt.y;
-      if(dx*dx+dy*dy<CLUSTER_PX*CLUSTER_PX){used[j]=true;g.push(pts[j].ev);}
+      if(dx*dx+dy*dy<R*R){used[j]=true;g.push(pts[j].ev);}
     }
     groups.push(g);
   }
@@ -1926,8 +1946,16 @@ function rebuildClusters(){
     }else{
       var ids=g.map(function(e){return e.id;}).sort(function(a,b){return a-b;});
       key='c'+ids.join('_');seen[key]=true;
-      var lat=g.reduce(function(s,e){return s+e.lat;},0)/g.length;
-      var lng=g.reduce(function(s,e){return s+e.lng;},0)/g.length;
+      // Anchor the bubble on a REAL event location, not the empty average point.
+      // Pick the event closest to the group's centroid so the number sits on an actual venue.
+      var cLat=g.reduce(function(s,e){return s+e.lat;},0)/g.length;
+      var cLng=g.reduce(function(s,e){return s+e.lng;},0)/g.length;
+      var best=g[0],bestD=Infinity;
+      for(var gi=0;gi<g.length;gi++){
+        var ddx=g[gi].lat-cLat,ddy=g[gi].lng-cLng,dd=ddx*ddx+ddy*ddy;
+        if(dd<bestD){bestD=dd;best=g[gi];}
+      }
+      var lat=best.lat,lng=best.lng;
       if(mbPool[key]){mbPool[key].marker.setLngLat([lng,lat]);}
       else{
         mbPool[key]={marker:new mapboxgl.Marker({element:makeClusterEl(g)}).setLngLat([lng,lat]).addTo(mbMap)};
@@ -2034,3 +2062,4 @@ window.addEventListener('load',function(){
 </script>
 </body>
 </html>
+========== END index.html ==========
