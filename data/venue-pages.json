@@ -1,6 +1,55 @@
+bash
+
+echo '========== BEGIN data/venue-pages.json =========='
+cat /mnt/user-data/outputs/happeningpdx-repo/data/venue-pages.json
+echo '========== END data/venue-pages.json =========='
+Output
+
+========== BEGIN data/venue-pages.json ==========
 [
  {
-  "_comment": "Point at any venue's events page. The pipeline extracts schema.org Event data that sites embed for Google. Set enabled:false to pause one. 'venue' and lat/lng override page data; 'category' overrides auto-detection. Check the Action log for [jsonld] lines to see which sites work."
+  "_comment": "Venue event-calendar pages. Pipeline extracts schema.org Event data embedded for Google. ETIX VENUES: use per-venue upcoming-events URL https://www.etix.com/ticket/mvc/online/upcomingEvents/venue?venue_id=ID (find numeric ID from any venue etix link, e.g. etix.com/ticket/v/16896/ -> 16896). enabled:false pauses one. 'venue'+lat/lng override page data; 'category' overrides auto-detect. Watch [jsonld] log lines: 'N found, N kept'=working; '0 found'=no structured data; 'HTTP 4xx'=blocked/wrong URL."
+ },
+ {
+  "url": "https://www.etix.com/ticket/mvc/online/upcomingEvents/venue?venue_id=16896",
+  "venue": "Mississippi Studios",
+  "category": "music",
+  "lat": 45.5510,
+  "lng": -122.6755,
+  "enabled": true
+ },
+ {
+  "url": "https://www.etix.com/ticket/mvc/online/upcomingEvents/venue?venue_id=16897",
+  "venue": "Revolution Hall",
+  "category": "music",
+  "lat": 45.5190,
+  "lng": -122.6542,
+  "enabled": true
+ },
+ {
+  "_comment_todo": "Aladdin, Holocene, Polaris Hall are also Etix venues. Add each once its numeric venue_id is known (visit venue Etix ticket page, read /v/NUMBER/). Disabled until confirmed so they don't error the log.",
+  "url": "https://www.etix.com/ticket/mvc/online/upcomingEvents/venue?venue_id=REPLACE_ALADDIN",
+  "venue": "Aladdin Theater",
+  "category": "music",
+  "lat": 45.5028,
+  "lng": -122.6534,
+  "enabled": false
+ },
+ {
+  "url": "https://www.etix.com/ticket/mvc/online/upcomingEvents/venue?venue_id=REPLACE_HOLOCENE",
+  "venue": "Holocene",
+  "category": "nightlife",
+  "lat": 45.5165,
+  "lng": -122.6551,
+  "enabled": false
+ },
+ {
+  "url": "https://www.etix.com/ticket/mvc/online/upcomingEvents/venue?venue_id=REPLACE_POLARIS",
+  "venue": "Polaris Hall",
+  "category": "music",
+  "lat": 45.5559,
+  "lng": -122.6767,
+  "enabled": false
  },
  {
   "url": "https://dougfirlounge.com/calendar/",
@@ -11,59 +60,11 @@
   "enabled": true
  },
  {
-  "url": "https://www.mississippistudios.com/calendar/",
-  "venue": "Mississippi Studios",
+  "url": "https://wonderballroom.com/calendar/",
+  "venue": "Wonder Ballroom",
   "category": "music",
-  "lat": 45.551,
-  "lng": -122.6755,
-  "enabled": true
- },
- {
-  "url": "https://holocene.org/events/",
-  "venue": "Holocene",
-  "category": "nightlife",
-  "lat": 45.5165,
-  "lng": -122.6551,
-  "enabled": true
- },
- {
-  "url": "https://aladdin-theater.com/events/",
-  "venue": "Aladdin Theater",
-  "category": "music",
-  "lat": 45.5028,
-  "lng": -122.6534,
-  "enabled": true
- },
- {
-  "url": "https://www.revolutionhall.com/calendar/",
-  "venue": "Revolution Hall",
-  "category": "music",
-  "lat": 45.5192,
-  "lng": -122.6531,
-  "enabled": true
- },
- {
-  "url": "https://www.polarishallpdx.com/events",
-  "venue": "Polaris Hall",
-  "category": "music",
-  "lat": 45.5559,
-  "lng": -122.6767,
-  "enabled": true
- },
- {
-  "url": "https://albertarosetheatre.com/events/",
-  "venue": "Alberta Rose Theatre",
-  "category": "music",
-  "lat": 45.5589,
-  "lng": -122.651,
-  "enabled": true
- },
- {
-  "url": "https://www.hollywoodtheatre.org/calendar/",
-  "venue": "Hollywood Theatre",
-  "category": "art",
-  "lat": 45.5349,
-  "lng": -122.6217,
+  "lat": 45.5412,
+  "lng": -122.6603,
   "enabled": true
  },
  {
@@ -75,11 +76,12 @@
   "enabled": true
  },
  {
-  "url": "https://wonderballroom.com/calendar/",
-  "venue": "Wonder Ballroom",
+  "url": "https://albertarosetheatre.com/events/",
+  "venue": "Alberta Rose Theatre",
   "category": "music",
-  "lat": 45.5412,
-  "lng": -122.6603,
+  "lat": 45.5589,
+  "lng": -122.6510,
   "enabled": true
  }
 ]
+========== END data/venue-pages.json ==========
