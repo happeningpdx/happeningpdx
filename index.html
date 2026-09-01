@@ -1,3 +1,5 @@
+Output
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -97,6 +99,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 .dchip{display:inline-flex;align-items:center;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid #e4e7ed;background:#f5f6f8;color:#6b7280;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent;transition:all .15s}
 .dchip.on{background:#4f7ef8;color:#fff;border-color:#4f7ef8}
 .lv-datebar{border-bottom:1px solid #e4e7ed}
+/* calendar sheet */
+.cal-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;border:1.5px solid #e4e7ed;background:#f5f6f8;color:#6b7280;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;flex-shrink:0}
+.cal-btn.on{background:#4f7ef8;color:#fff;border-color:#4f7ef8}
+.calsheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:210;display:none;backdrop-filter:blur(2px)}
+.calsheet-bg.show{display:block}
+.calsheet{position:fixed;left:0;right:0;bottom:0;background:#fff;border-radius:22px 22px 0 0;z-index:211;padding:0 0 30px;max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform .32s cubic-bezier(.32,1.01,.64,1)}
+.calsheet.show{transform:translateY(0)}
+.cal-hd{display:flex;align-items:center;justify-content:space-between;padding:4px 18px 14px}
+.cal-nav{width:34px;height:34px;border-radius:50%;background:#f5f6f8;border:1.5px solid #e4e7ed;color:#1a1f2e;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.cal-mon{font-size:15px;font-weight:800;letter-spacing:-.2px}
+.cal-hint{font-size:11.5px;color:#adb3c0;text-align:center;padding:0 20px 12px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:0 14px}
+.cal-dow{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#adb3c0;text-align:center;padding:4px 0}
+.cal-cell{aspect-ratio:1;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#1a1f2e;cursor:pointer;border:1.5px solid transparent;position:relative;-webkit-tap-highlight-color:transparent}
+.cal-cell.empty{cursor:default}
+.cal-cell.past{color:#d4d7de;cursor:default}
+.cal-cell.has:hover{background:#f0f3ff}
+.cal-cnt{font-size:8px;font-weight:700;color:#4f7ef8;margin-top:1px;line-height:1}
+.cal-cell.sel{background:#4f7ef8;color:#fff}
+.cal-cell.sel .cal-cnt{color:#fff}
+.cal-cell.inrange{background:#dbe4fe}
+.cal-cell.rangeend{background:#4f7ef8;color:#fff}
+.cal-cell.rangeend .cal-cnt{color:#fff}
+.cal-cell.nodots{color:#c0c4cd}
+.calsheet-btns{display:flex;gap:10px;padding:18px 20px 0}
+.cal-clear{flex:1;padding:12px;border-radius:12px;font-family:inherit;font-size:14px;font-weight:600;background:#f5f6f8;color:#6b7280;border:1.5px solid #e4e7ed;cursor:pointer}
+.cal-apply{flex:2;padding:12px;border-radius:12px;font-family:inherit;font-size:14px;font-weight:700;background:linear-gradient(135deg,#4f7ef8,#6366f1);color:#fff;border:none;cursor:pointer}
+/* category dropdown */
+.lv-catsel{padding:6px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1.5px solid #e4e7ed;background:#f5f6f8;color:#1a1f2e;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;flex-shrink:0;outline:none}
 .body{flex:1;min-height:0;display:flex;overflow:hidden;position:relative}
 
 /* FILTER SHEET */
@@ -422,6 +453,24 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
   </form>
 </div>
 
+<!-- CALENDAR SHEET -->
+<div class="calsheet-bg" id="calBg" onclick="closeCal()"></div>
+<div class="calsheet" id="calSheet">
+  <div class="fsheet-handle"></div>
+  <div class="fsheet-ttl">Pick dates</div>
+  <div class="cal-hint" id="calHint">Tap a day, or tap two days for a range</div>
+  <div class="cal-hd">
+    <button class="cal-nav" onclick="calMonth(-1)">&#x2039;</button>
+    <div class="cal-mon" id="calMon"></div>
+    <button class="cal-nav" onclick="calMonth(1)">&#x203A;</button>
+  </div>
+  <div class="cal-grid" id="calGrid"></div>
+  <div class="calsheet-btns">
+    <button class="cal-clear" onclick="calClear()">Clear</button>
+    <button class="cal-apply" onclick="calApply()">Show events</button>
+  </div>
+</div>
+
 <!-- LIST VIEW -->
 <div class="listview" id="listview">
   <div class="lv-hdr">
@@ -436,6 +485,21 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
     <div class="dchip" data-d="week" onclick="pickDate('week',this)">This week</div>
   </div>
   <div class="lv-sort">
+    <button class="cal-btn" id="calBtn" onclick="openCal()">&#x1F4C5; Dates</button>
+    <select class="lv-catsel" id="lvCatSel" onchange="pickCatDropdown(this.value)">
+      <option value="all">All categories</option>
+      <option value="music">Music</option>
+      <option value="art">Art</option>
+      <option value="food">Food &amp; Drink</option>
+      <option value="outdoor">Outdoor</option>
+      <option value="community">Community</option>
+      <option value="nightlife">Nightlife</option>
+      <option value="comedy">Comedy</option>
+      <option value="market">Markets</option>
+      <option value="wellness">Wellness</option>
+      <option value="festival">Festivals</option>
+      <option value="sports">Sports</option>
+    </select>
     <div class="sort-chip on" data-s="date" onclick="setSort('date',this)">By date</div>
     <div class="sort-chip" data-s="name" onclick="setSort('name',this)">A - Z</div>
     <div class="sort-chip" data-s="price" onclick="setSort('price',this)">Price</div>
@@ -864,7 +928,7 @@ function startInertia(){
   rafId=requestAnimationFrame(step);
 }
 
-function isUI(el){return el&&el.closest&&(el.closest('.pop')||el.closest('.srcp')||el.closest('.rad-panel')||el.closest('.zoom-wrap')||el.closest('.loc-btn')||el.closest('.rad-btn'));}
+function isUI(el){return el&&el.closest&&(el.closest('.pop')||elel.closest('.srcp')||el.closest('.rad-panel')||el.closest('.zoom-wrap')||el.closest('.loc-btn')||el.closest('.rad-btn'));}
 
 function initEvents(){
   wrap.addEventListener('mousedown',function(e){if(isUI(e.target))return;isDrag=true;startX=lastX=e.clientX;startY=lastY=e.clientY;lastT=Date.now();vx=vy=0;cancelAnimationFrame(rafId);wrap.classList.add('drag');e.preventDefault();},{passive:false});
@@ -1100,6 +1164,9 @@ function closeDetail(){document.getElementById('detPanel').classList.remove('ope
 // DATE
 function dateWindow(key){
   var now=new Date();now.setHours(0,0,0,0);var end=new Date(now);
+  if(key==='custom'&&window.calRange){
+    return {start:new Date(window.calRange.start),end:new Date(window.calRange.end)};
+  }
   if(key==='today')end.setDate(end.getDate()+1);
   else if(key==='tomorrow'){now.setDate(now.getDate()+1);end=new Date(now);end.setDate(end.getDate()+1);}
   else if(key==='weekend'){var d=now.getDay();end.setDate(now.getDate()+(6-d)+1);}
@@ -1133,6 +1200,9 @@ function parseDate(s){
   return new Date();
 }
 function isInDateWindow(ev,win){
+  // Recurring events (no specific year, weekly/daily patterns) happen during any window
+  var raw=ev.d||'';
+  if(!/\d{4}/.test(raw)&&/daily|every|through|weekend|mondays|tuesdays|wednesdays|thursdays|fridays|saturdays|sundays/i.test(raw))return true;
   var s=parseDate(ev.d);if(!s)return true;
   var e=parseEndDate(ev.d)||s;
   s=new Date(s);e=new Date(e);
@@ -1429,6 +1499,9 @@ function ageMatch(ev){
 // DATE QUICK-FILTER - syncs map + list bars, reuses the filter engine
 function pickDate(key, el){
   activeDateFilter=key;
+  // picking a quick chip cancels any custom calendar selection
+  window.calRange=null; calPickStart=null; calPickEnd=null;
+  var cb=document.getElementById('calBtn'); if(cb) cb.classList.remove('on');
   // sync the visual state of BOTH bars
   document.querySelectorAll('.dchip').forEach(function(c){
     c.classList.toggle('on', c.getAttribute('data-d')===key);
@@ -1442,11 +1515,175 @@ function pickDate(key, el){
   refreshList();
 }
 
+// ---- CALENDAR ----
+var calViewY, calViewM;        // month currently shown
+var calPickStart=null, calPickEnd=null;  // Date objects (midnight), selection in progress
+
+function openCal(){
+  var base=(calPickStart||new Date());
+  calViewY=base.getFullYear(); calViewM=base.getMonth();
+  renderCal();
+  document.getElementById('calBg').classList.add('show');
+  document.getElementById('calSheet').classList.add('show');
+}
+function closeCal(){
+  document.getElementById('calBg').classList.remove('show');
+  document.getElementById('calSheet').classList.remove('show');
+}
+function calMonth(delta){
+  calViewM+=delta;
+  if(calViewM<0){calViewM=11;calViewY--;}
+  else if(calViewM>11){calViewM=0;calViewY++;}
+  renderCal();
+}
+
+// Count events on a specific day (respects category filter). Excludes recurring
+// events (no fixed date) - they happen every day and would inflate every count.
+function eventsOnDay(dayDate){
+  var dayStart=new Date(dayDate);dayStart.setHours(0,0,0,0);
+  var dayEnd=new Date(dayStart);dayEnd.setDate(dayEnd.getDate()+1);
+  var win={start:dayStart,end:dayEnd};
+  var n=0;
+  for(var i=0;i<EVENTS.length;i++){
+    var ev=EVENTS[i];
+    if(!loaded[ev.id])continue;
+    if(!(activeFilter==='all'||ev.t===activeFilter))continue;
+    // skip recurring - they have no specific date, so counting them per-day is meaningless
+    var raw=ev.d||'';
+    if(!/\d{4}/.test(raw)&&/daily|every|through|weekend|mondays|tuesdays|wednesdays|thursdays|fridays|saturdays|sundays/i.test(raw))continue;
+    // count only if the event's specific date actually lands in this day
+    var s=parseDate(ev.d);if(!s)continue;
+    var e=parseEndDate(ev.d)||s;
+    s=new Date(s);e=new Date(e);s.setHours(0,0,0,0);e.setHours(0,0,0,0);
+    if(e>=win.start&&s<win.end)n++;
+  }
+  return n;
+}
+
+function renderCal(){
+  var MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calMon').textContent=MON[calViewM]+' '+calViewY;
+  var grid=document.getElementById('calGrid');
+  grid.innerHTML='';
+  ['S','M','T','W','T','F','S'].forEach(function(d){
+    var el=document.createElement('div');el.className='cal-dow';el.textContent=d;grid.appendChild(el);
+  });
+  var first=new Date(calViewY,calViewM,1);
+  var startDow=first.getDay();
+  var daysInMonth=new Date(calViewY,calViewM+1,0).getDate();
+  var today=new Date();today.setHours(0,0,0,0);
+  // leading blanks
+  for(var b=0;b<startDow;b++){
+    var e=document.createElement('div');e.className='cal-cell empty';grid.appendChild(e);
+  }
+  for(var day=1;day<=daysInMonth;day++){
+    var cellDate=new Date(calViewY,calViewM,day);cellDate.setHours(0,0,0,0);
+    var cell=document.createElement('div');
+    cell.className='cal-cell';
+    var isPast=cellDate.getTime()<today.getTime();
+    if(isPast){
+      cell.className+=' past';
+      cell.innerHTML='<div>'+day+'</div>';
+    }else{
+      var cnt=eventsOnDay(cellDate);
+      cell.innerHTML='<div>'+day+'</div>'+(cnt>0?'<div class="cal-cnt">'+cnt+'</div>':'');
+      if(cnt>0)cell.className+=' has'; else cell.className+=' nodots';
+      // selection state
+      var t=cellDate.getTime();
+      if(calPickStart&&!calPickEnd&&t===calPickStart.getTime())cell.className+=' sel';
+      else if(calPickStart&&calPickEnd){
+        var s=calPickStart.getTime(),en=calPickEnd.getTime();
+        if(t===s||t===en)cell.className+=' rangeend';
+        else if(t>s&&t<en)cell.className+=' inrange';
+      }
+      (function(cd){
+        cell.addEventListener('click',function(){calPick(cd);});
+      })(cellDate);
+    }
+    grid.appendChild(cell);
+  }
+  // update hint
+  var hint=document.getElementById('calHint');
+  if(calPickStart&&calPickEnd){
+    hint.textContent=fmtShort(calPickStart)+' \u2192 '+fmtShort(calPickEnd);
+  }else if(calPickStart){
+    hint.textContent=fmtShort(calPickStart)+' \u2014 tap another day for a range, or Show events for just this day';
+  }else{
+    hint.textContent='Tap a day, or tap two days for a range';
+  }
+}
+
+function fmtShort(d){
+  var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return M[d.getMonth()]+' '+d.getDate();
+}
+
+function calPick(cellDate){
+  if(!calPickStart||(calPickStart&&calPickEnd)){
+    // start fresh selection
+    calPickStart=cellDate; calPickEnd=null;
+  }else{
+    // second tap - set range (order-agnostic)
+    if(cellDate.getTime()===calPickStart.getTime()){
+      // tapped same day again - keep as single day
+    }else if(cellDate.getTime()<calPickStart.getTime()){
+      calPickEnd=calPickStart; calPickStart=cellDate;
+    }else{
+      calPickEnd=cellDate;
+    }
+  }
+  renderCal();
+}
+
+function calClear(){
+  calPickStart=null; calPickEnd=null;
+  window.calRange=null;
+  activeDateFilter='all';
+  document.getElementById('calBtn').classList.remove('on');
+  // restore chip bars to "all"
+  document.querySelectorAll('.dchip').forEach(function(c){c.classList.toggle('on',c.getAttribute('data-d')==='all');});
+  syncDateChips();
+  renderCal();
+  setDateFilter('all');
+  updateBadge();
+  refreshList();
+  closeCal();
+}
+
+function calApply(){
+  if(!calPickStart){ closeCal(); return; }
+  var start=new Date(calPickStart);start.setHours(0,0,0,0);
+  var end;
+  if(calPickEnd){ end=new Date(calPickEnd); }
+  else { end=new Date(calPickStart); }
+  end.setHours(0,0,0,0);
+  end.setDate(end.getDate()+1); // window end is exclusive at midnight
+  window.calRange={start:start,end:end};
+  activeDateFilter='custom';
+  activeDateKey='custom';
+  // light up the Dates button, clear the quick chips (they no longer apply)
+  document.getElementById('calBtn').classList.add('on');
+  document.querySelectorAll('.dchip').forEach(function(c){c.classList.remove('on');});
+  var pill=document.getElementById('datePill');
+  if(pill){pill.textContent='\u{1F4C5} '+fmtShort(calPickStart)+(calPickEnd?' - '+fmtShort(calPickEnd):'');pill.classList.add('show');}
+  updatePins(); updateCount(); updateBadge(); refreshList();
+  closeCal();
+}
+
+// CATEGORY DROPDOWN (list view) - mirrors the chip-bar filter, stays in sync
+function pickCatDropdown(cat){
+  activeFilter=cat;
+  document.querySelectorAll('.chip').forEach(function(c){c.classList.toggle('on',c.getAttribute('data-t')===cat);});
+  closeDetail(); closePop();
+  updatePins(); updateCount(); refreshList();
+}
+
 // CATEGORY FILTER - wire it up properly
 function setFilter(type, el){
   activeFilter=type;
   document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('on');});
   el.classList.add('on');
+  var sel=document.getElementById('lvCatSel'); if(sel) sel.value=type;
   closeDetail(); closePop();
   updatePins(); updateCount(); refreshList();
 }
@@ -1474,7 +1711,7 @@ function getVisibleEvents(){
     try{saved=JSON.parse(localStorage.getItem('hpdx_saved')||'[]');}catch(e){}
     return EVENTS.filter(function(ev){return saved.indexOf(ev.id)>=0;});
   }
-  var win=dateWindow(activeDateFilter==='all'?'all':activeDateFilter);
+  var win=dateWindow(activeDateFilter);
   return EVENTS.filter(function(ev){
     var inCat=activeFilter==='all'||ev.t===activeFilter;
     var inR=userLat===null||ev._inRadius!==false;
@@ -2054,4 +2291,3 @@ window.addEventListener('load',function(){
 </script>
 </body>
 </html>
-========== END index.html ==========
