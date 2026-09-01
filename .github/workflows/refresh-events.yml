@@ -1,42 +1,3 @@
-Refresh events
-"on":
-  schedule:
-    - cron: "17 13 * * *"
-  workflow_dispatch: {}
-permissions:
-  contents: write
-jobs:
-  refresh:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - name: Fetch events
-        run: node scripts/fetch-events.js
-        env:
-          TM_API_KEY: ${{ secrets.TM_API_KEY }}
-          SEATGEEK_CLIENT_ID: ${{ secrets.SEATGEEK_CLIENT_ID }}
-      - name: Commit if changed
-        run: |
-          git config user.name "events-bot"
-          git config user.email "bot@happeningpdx"
-          git add events.json
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "refresh events"
-            git pull --rebase --autostash origin main
-            git push
-          fi
-YMLEOF
-echo "=== new workflow ==="
-cat /mnt/user-data/outputs/happeningpdx-repo/.github/workflows/refresh-events.yml
-python3 -c "import yaml; yaml.safe_load(open('/mnt/user-data/outputs/happeningpdx-repo/.github/workflows/refresh-events.yml')); print('YAML valid')" 2>/dev/null || echo "(yaml module not available, skipping validation)"
-Output
-
-=== new workflow ===
 name: Refresh events
 "on":
   schedule:
@@ -69,4 +30,3 @@ jobs:
             git pull --rebase --autostash origin main
             git push
           fi
-YAML valid
