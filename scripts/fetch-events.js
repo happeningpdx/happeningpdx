@@ -1,11 +1,3 @@
-bash
-
-echo '========== BEGIN scripts/fetch-events.js =========='
-cat /mnt/user-data/outputs/happeningpdx-repo/scripts/fetch-events.js
-echo '========== END scripts/fetch-events.js =========='
-Output
-
-========== BEGIN scripts/fetch-events.js ==========
 #!/usr/bin/env node
 /**
  * happeningpdx event pipeline
@@ -21,6 +13,7 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const KEY = process.env.TM_API_KEY || '';
+const SEATGEEK_ID = process.env.SEATGEEK_CLIENT_ID || '';
 const CENTER = '45.5231,-122.6765'; // Portland
 const RADIUS_MILES = 30;
 const DAYS_AHEAD = 60;
@@ -416,6 +409,76 @@ async function fetchVenuePages() {
   return out;
 }
 
+// ---------- SOURCE: SeatGeek (official public API, client_id key) ----------
+// Clean REST API - events with coordinates, prices, venue. Complements Ticketmaster.
+function sgCategory(ev) {
+  const type = (ev.type || '').toLowerCase();
+  const taxes = (ev.taxonomies || []).map(t => (t.name || '').toLowerCase());
+  if (taxes.some(t => t.includes('comedy'))) return 'comedy';
+  if (taxes.some(t => t.includes('sports')) || /game|_vs_|match/.test(type)) return 'sports';
+  if (taxes.some(t => t.includes('theater') || t.includes('theatre') || t.includes('dance') || t.includes('classical') || t.includes('broadway'))) return 'art';
+  if (type.includes('concert') || taxes.some(t => t.includes('concert') || t.includes('music'))) return 'music';
+  if (type.includes('festival')) return 'festival';
+  return 'community';
+}
+async function fetchSeatGeek() {
+  if (!SEATGEEK_ID) { console.log('[seatgeek] no SEATGEEK_CLIENT_ID set - skipping'); return []; }
+  const out = [];
+  const horizon = Date.now() + DAYS_AHEAD * 86400000;
+  const nowIso = new Date().toISOString().slice(0, 10);
+  const endIso = new Date(horizon).toISOString().slice(0, 10);
+  try {
+    for (let page = 1; page <= 3; page++) {
+      const url = `https://api.seatgeek.com/2/events?client_id=${SEATGEEK_ID}` +
+        `&lat=45.5231&lon=-122.6765&range=30mi` +
+        `&datetime_local.gte=${nowIso}&datetime_local.lte=${endIso}` +
+        `&per_page=100&page=${page}&sort=datetime_local.asc`;
+      const res = await fetch(url, { headers: { 'User-Agent': 'happeningpdxBot/1.0 (+https://happeningpdx.netlify.app)' } });
+      if (!res.ok) { console.log(`[seatgeek] HTTP ${res.status}`); break; }
+      const data = await res.json();
+      const events = (data && data.events) || [];
+      for (const ev of events) {
+        const v = ev.venue || {};
+        const lat = parseFloat(v.location && v.location.lat), lng = parseFloat(v.location && v.location.lon);
+        if (isNaN(lat) || isNaN(lng)) continue;
+        const localDate = (ev.datetime_local || '').match(/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?/);
+        if (!localDate) continue;
+        const start = new Date(+localDate[1], +localDate[2] - 1, +localDate[3], +(localDate[4] || 19), +(localDate[5] || 0));
+        if (start.getTime() < Date.now() - 86400000 || start.getTime() > horizon) continue;
+        const stats = ev.stats || {};
+        let price = 'See tickets';
+        if (stats.lowest_price != null) {
+          price = stats.highest_price != null && stats.highest_price > stats.lowest_price
+            ? `$${Math.round(stats.lowest_price)}-$${Math.round(stats.highest_price)}`
+            : `$${Math.round(stats.lowest_price)}`;
+        }
+        out.push({
+          id: hashId('sg:' + ev.id),
+          url: ev.url || '',
+          t: sgCategory(ev),
+          n: decodeEntities(String(ev.title || ev.short_title || 'Event')).slice(0, 90),
+          v: decodeEntities(v.name || 'Venue TBA'),
+          a: [v.address, v.city].filter(Boolean).join(', ') || 'Portland, OR',
+          d: fmtLocal(start, !!localDate[4]),
+          p: price,
+          age: 'See listing',
+          src: 'SeatGeek',
+          promo: false,
+          lat, lng,
+          desc: (ev.performers && ev.performers[0] && ev.performers[0].name)
+            ? `${ev.performers[0].name} at ${v.name || 'a Portland venue'}.`
+            : `Live at ${v.name || 'a Portland venue'}.`,
+          tags: (ev.taxonomies || []).map(t => (t.name || '').toLowerCase()).filter(Boolean).slice(0, 2),
+        });
+      }
+      const totalPages = data && data.meta ? Math.ceil(data.meta.total / data.meta.per_page) : 1;
+      if (page >= totalPages) break;
+    }
+    console.log(`[seatgeek] ${out.length} events`);
+  } catch (e) { console.log(`[seatgeek] failed: ${e.message}`); }
+  return out;
+}
+
 // ---------- SOURCE: Calagator (Portland community calendar, open API) ----------
 // Community-run, CC-licensed, publishes clean JSON. No key required.
 async function fetchCalagator() {
@@ -545,13 +608,14 @@ function main() {
     const ics = await fetchFeeds();
     const venuePages = await fetchVenuePages();
     const calagator = await fetchCalagator();
+    const seatgeek = await fetchSeatGeek();
     const everout = await fetchEverOut();
     const curated = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'curated.json'), 'utf8'));
 
     // Dedupe: curated > Ticketmaster > calendar feeds > EverOut
     const seen = new Set(curated.map(e => normKey(e.n, e.d)));
     const merged = [...curated];
-    for (const list of [tm, ics, venuePages, calagator, everout]) {
+    for (const list of [tm, ics, venuePages, calagator, seatgeek, everout]) {
       for (const e of list) {
         const k = normKey(e.n, e.d);
         if (seen.has(k)) continue;
@@ -560,7 +624,7 @@ function main() {
       }
     }
     merged.length = Math.min(merged.length, MAX_EVENTS);
-    console.log(`Sources: curated ${curated.length}, ticketmaster ${tm.length}, ics ${ics.length}, venue-pages ${venuePages.length}, calagator ${calagator.length}, everout ${everout.length}`);
+    console.log(`Sources: curated ${curated.length}, ticketmaster ${tm.length}, ics ${ics.length}, venue-pages ${venuePages.length}, calagator ${calagator.length}, seatgeek ${seatgeek.length}, everout ${everout.length}`);
 
     // Prune past one-off events (recurring entries without a year always stay).
     // Multi-day ranges are kept through their end day.
@@ -607,4 +671,3 @@ function main() {
 }
 
 main().catch(e => { console.error(e); process.exit(1); });
-========== END scripts/fetch-events.js ==========
