@@ -864,7 +864,7 @@ function startInertia(){
   rafId=requestAnimationFrame(step);
 }
 
-function isUI(el){return el&&el.closest&&(el.closest('.pop')||elel.closest('.srcp')||el.closest('.rad-panel')||el.closest('.zoom-wrap')||el.closest('.loc-btn')||el.closest('.rad-btn'));}
+function isUI(el){return el&&el.closest&&(el.closest('.pop')||el.closest('.srcp')||el.closest('.rad-panel')||el.closest('.zoom-wrap')||el.closest('.loc-btn')||el.closest('.rad-btn'));}
 
 function initEvents(){
   wrap.addEventListener('mousedown',function(e){if(isUI(e.target))return;isDrag=true;startX=lastX=e.clientX;startY=lastY=e.clientY;lastT=Date.now();vx=vy=0;cancelAnimationFrame(rafId);wrap.classList.add('drag');e.preventDefault();},{passive:false});
