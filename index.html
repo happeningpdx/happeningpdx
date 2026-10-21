@@ -1,5 +1,3 @@
-Output
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -195,6 +193,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 .rad-btn.on{background:#eef2ff;color:#4f7ef8;border-color:#4f7ef8}
 .cnt{bottom:24px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.97);border:1px solid rgba(0,0,0,.07);border-radius:22px;padding:6px 16px;font-size:12px;font-weight:500;color:#6b7280;box-shadow:0 2px 12px rgba(0,0,0,.09);pointer-events:none;white-space:nowrap}
 .cnt strong{color:#1a1f2e}
+.search-area{position:absolute;top:14px;left:50%;transform:translateX(-50%) translateY(-8px);z-index:46;background:#1a1f2e;color:#fff;border:none;border-radius:22px;padding:10px 20px;font-family:inherit;font-size:13px;font-weight:700;box-shadow:0 4px 18px rgba(0,0,0,.28);cursor:pointer;display:none;align-items:center;gap:7px;white-space:nowrap;opacity:0;transition:opacity .2s,transform .2s;-webkit-tap-highlight-color:transparent}
+.search-area.show{display:flex;opacity:1;transform:translateX(-50%) translateY(0)}
+.search-area:active{transform:translateX(-50%) translateY(1px)}
+.search-area .sa-ic{font-size:14px}
 .dpill{bottom:58px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.97);border:1.5px solid #c7d7fe;border-radius:20px;padding:3px 13px;font-size:10px;font-weight:600;color:#4f7ef8;pointer-events:none;white-space:nowrap;display:none}
 .dpill.show{display:block}
 .rad-panel{right:62px;bottom:78px;width:192px;background:#fff;border:1px solid #e4e7ed;border-radius:16px;padding:13px;box-shadow:0 4px 24px rgba(0,0,0,.13);display:none}
@@ -221,6 +223,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 .uring{position:absolute;top:50%;left:50%;border-radius:50%;border:2px solid rgba(79,126,248,.45);transform:translate(-50%,-50%);animation:ring 2s ease-out infinite}
 .uring2{animation-delay:.75s}
 @keyframes ring{0%{width:14px;height:14px;opacity:.9}100%{width:60px;height:60px;opacity:0}}
+@keyframes hpdxpulse{0%{width:16px;height:16px;opacity:.7}100%{width:44px;height:44px;opacity:0}}
 .udot{width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#4f7ef8,#6366f1);border:3px solid #fff;box-shadow:0 2px 10px rgba(79,126,248,.55);position:relative;z-index:1}
 .sst.w{color:#adb3c0}.sst.l{color:#4f7ef8}.sst.d{color:#10b981}
 .pop{position:absolute;z-index:45;width:278px;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 12px 44px rgba(0,0,0,.18);transform:translate(-50%,-100%) translateY(-14px);pointer-events:all;cursor:pointer;animation:popin .22s cubic-bezier(.34,1.56,.64,1)}
@@ -520,6 +523,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
     <button class="ctrl rad-btn" id="radBtn" onclick="toggleRadius()">&#x2299;</button>
     <div class="ctrl rad-panel" id="radPanel"><div class="rad-ttl">Search radius</div><div id="radOpts"></div></div>
     <button class="ctrl loc-btn" id="locBtn" onclick="locateMe()">&#x25CE;</button>
+    <button class="search-area" id="searchAreaBtn" onclick="searchThisArea()"><span class="sa-ic">&#x1F50D;</span> Search this area</button>
     <div class="ctrl cnt" id="cntBadge"><strong>0</strong> events near Portland</div>
     <div class="ctrl dpill" id="datePill"></div>
     <div class="ctrl here" id="hereBanner">
@@ -1200,9 +1204,24 @@ function parseDate(s){
   return new Date();
 }
 function isInDateWindow(ev,win){
-  // Recurring events (no specific year, weekly/daily patterns) happen during any window
+  // Recurring events (no specific year, weekly/daily patterns)
   var raw=ev.d||'';
-  if(!/\d{4}/.test(raw)&&/daily|every|through|weekend|mondays|tuesdays|wednesdays|thursdays|fridays|saturdays|sundays/i.test(raw))return true;
+  var isRecurring=!/\d{4}/.test(raw)&&/daily|every|through|weekend|mondays|tuesdays|wednesdays|thursdays|fridays|saturdays|sundays/i.test(raw);
+  if(isRecurring){
+    // If it names a specific month ("Tuesdays in July"), only show during that month
+    var months=['january','february','march','april','may','june','july','august','september','october','november','december'];
+    var mentioned=-1;
+    for(var mi=0;mi<12;mi++){if(raw.toLowerCase().indexOf(months[mi])>-1){mentioned=mi;break;}}
+    if(mentioned>=0){
+      // show only if the window overlaps that month (this year)
+      var now=new Date();var yr=now.getFullYear();
+      var mStart=new Date(yr,mentioned,1);
+      var mEnd=new Date(yr,mentioned+1,1);
+      // if that month already fully passed this year, it's done
+      return mEnd>win.start&&mStart<win.end;
+    }
+    return true; // open-ended recurring - always in window
+  }
   var s=parseDate(ev.d);if(!s)return true;
   var e=parseEndDate(ev.d)||s;
   s=new Date(s);e=new Date(e);
@@ -1242,6 +1261,15 @@ function setDateFilter(key){
 
 // AUTO AREA FILTER - events refresh as the map moves (Zillow-style)
 var searchBoundsActive=false;
+
+function searchThisArea(){
+  if(!mbMap)return;
+  applyBounds();
+  var b=document.getElementById('searchAreaBtn');
+  if(b)b.classList.remove('show');
+  if(window._setSearchedCenter)window._setSearchedCenter();
+  track('search_area');
+}
 
 function applyBounds(){
   if(!mbMap) return;
@@ -2028,12 +2056,25 @@ function initMapbox(){
     updatePins=updateMbMarkers;
     startLoading();
   });
-  // Auto-refresh visible events whenever the map settles
-  var moveTimer=null;
+  // Zillow-style: moving the map does NOT auto-refresh. Instead, once the user
+  // has moved meaningfully from where results were last searched, show a
+  // "Search this area" button; results update only when they tap it.
+  var _searchedCenter=null;
+  function mapMovedEnough(){
+    if(!_searchedCenter)return true;
+    var c=mbMap.getCenter();
+    var dLat=Math.abs(c.lat-_searchedCenter.lat), dLng=Math.abs(c.lng-_searchedCenter.lng);
+    // ~ a few blocks of movement, scaled loosely; also show on notable zoom change
+    return dLat>0.004||dLng>0.004;
+  }
   mbMap.on('moveend',function(){
-    clearTimeout(moveTimer);
-    moveTimer=setTimeout(applyBounds,250);
+    if(mapMovedEnough()){
+      var b=document.getElementById('searchAreaBtn');
+      if(b)b.classList.add('show');
+    }
   });
+  // expose so searchThisArea can update the baseline
+  window._setSearchedCenter=function(){ _searchedCenter=mbMap.getCenter(); };
   mbMap.on('click',function(){closePop();});
 }
 
@@ -2236,6 +2277,18 @@ function updateMbMarkers(){refreshMapData();}
 
 // Override locateMe for Mapbox
 var _origLocate=locateMe;
+function makeUserDotEl(){
+  var wrap=document.createElement('div');
+  wrap.style.cssText='position:relative;width:22px;height:22px;pointer-events:none';
+  wrap.innerHTML=
+    '<div style="position:absolute;top:50%;left:50%;width:22px;height:22px;border-radius:50%;background:rgba(79,126,248,.28);transform:translate(-50%,-50%);animation:hpdxpulse 2s ease-out infinite"></div>'
+    +'<div style="position:absolute;top:50%;left:50%;width:16px;height:16px;border-radius:50%;background:#4f7ef8;border:3px solid #fff;box-shadow:0 2px 8px rgba(79,126,248,.6);transform:translate(-50%,-50%)"></div>';
+  return wrap;
+}
+function placeUserDot(lat,lng){
+  if(window._mbUserDot){ window._mbUserDot.setLngLat([lng,lat]); return; }
+  window._mbUserDot=new mapboxgl.Marker({element:makeUserDotEl(),anchor:'center'}).setLngLat([lng,lat]).addTo(mbMap);
+}
 locateMe=function(){
   if(!mbMap){ _origLocate(); return; }
   var btn=document.getElementById('locBtn');
@@ -2244,16 +2297,18 @@ locateMe=function(){
   navigator.geolocation.getCurrentPosition(function(pos){
     userLat=pos.coords.latitude;userLng=pos.coords.longitude;
     mbMap.flyTo({center:[userLng,userLat],zoom:13.5,duration:1200,essential:true});
-    // Blue dot
-    if(window._mbUserDot) window._mbUserDot.remove();
-    var el=document.createElement('div');
-    el.style.cssText='width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#4f7ef8,#6366f1);border:3px solid #fff;box-shadow:0 2px 10px rgba(79,126,248,.6)';
-    window._mbUserDot=new mapboxgl.Marker({element:el,anchor:'center'}).setLngLat([userLng,userLat]).addTo(mbMap);
+    placeUserDot(userLat,userLng);
     var banner=document.getElementById('hereBanner');var sub=document.getElementById('hereSub');
     if(sub)sub.textContent='Events within '+activeRadius+' miles';
     if(banner)banner.classList.add('show');setTimeout(hideHere,5000);
     btn.innerHTML='&#x25C9;';btn.style.fontSize='20px';btn.classList.add('found');
     filterRadius();updateCount();updateRadCounts();showToast('Location found!');
+    // Keep the dot live as the user moves (walking around with the app open)
+    if(window._geoWatch)navigator.geolocation.clearWatch(window._geoWatch);
+    window._geoWatch=navigator.geolocation.watchPosition(function(p){
+      userLat=p.coords.latitude;userLng=p.coords.longitude;
+      placeUserDot(userLat,userLng);
+    },function(){},{enableHighAccuracy:true,maximumAge:10000,timeout:20000});
   },function(){btn.innerHTML='&#x25CE;';btn.style.fontSize='20px';showToast('Could not get location');},{enableHighAccuracy:true,timeout:10000});
 };
 
