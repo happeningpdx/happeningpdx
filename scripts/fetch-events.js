@@ -522,6 +522,83 @@ async function fetchCalagator() {
   return out;
 }
 
+// ---------- SOURCE: WLCR events API (True West Presents venues) ----------
+// Portland's True West Presents venues run a WordPress "wlcr" concerts plugin that
+// exposes a clean JSON feed at /wp-json/wlcr/v1/events/raw. These venues ticket
+// through Etix (not Ticketmaster), so this is the only way to reach their shows.
+// To add a venue: confirm GET <base>/wp-json/wlcr/v1/events/raw returns JSON, then
+// add { base, venue, lat, lng } below.
+const WLCR_VENUES = [
+  { base: 'https://www.aladdin-theater.com',    venue: 'Aladdin Theater',    lat: 45.5028, lng: -122.6534 },
+  { base: 'https://www.mississippistudios.com', venue: 'Mississippi Studios', lat: 45.5510, lng: -122.6755 },
+  { base: 'https://www.revolutionhall.com',     venue: 'Revolution Hall',    lat: 45.5192, lng: -122.6531 },
+];
+function wlcrPrice(ta) {
+  if (!ta) return 'See tickets';
+  const min = ta.minimum_ticket_price && ta.minimum_ticket_price.value;
+  const max = ta.maximum_ticket_price && ta.maximum_ticket_price.value;
+  // 0/0 means not-yet-priced (notOnSale), not free -> point users to the ticket page
+  if (!min && !max) return 'See tickets';
+  const lo = Math.round(min), hi = Math.round(max);
+  if (hi > lo) return `${lo}-${hi}`;
+  return `${lo}`;
+}
+async function fetchWLCR() {
+  const out = [];
+  const horizon = Date.now() + DAYS_AHEAD * 86400000;
+  for (const V of WLCR_VENUES) {
+    try {
+      const res = await fetch(`${V.base}/wp-json/wlcr/v1/events/raw`, {
+        headers: { 'User-Agent': 'happeningpdxBot/1.0 (+https://happeningpdx.com)', 'Accept': 'application/json' } });
+      if (!res.ok) { console.log(`[wlcr] ${V.venue} -> HTTP ${res.status}`); continue; }
+      const data = await res.json();
+      // The feed is a JSON array (sometimes delivered as an object with numeric keys).
+      const rows = Array.isArray(data) ? data : Object.values(data).filter(x => x && typeof x === 'object');
+      let kept = 0;
+      for (const ev of rows) {
+        if (!ev || ev.listed === false || !ev.name || !ev.start) continue;
+        const local = ev.start.local; // "2026-11-19T20:00:00"
+        const m = local && local.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+        if (!m) continue;
+        const start = new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]);
+        if (isNaN(start) || start.getTime() < Date.now() - 86400000 || start.getTime() > horizon) continue;
+        let nameText = decodeEntities((ev.name.text || '').replace(/<[^>]*>/g, '')).trim();
+        if (!nameText) continue;
+        // The venue puts status in the title ("SOLD OUT: Band", "RESCHEDULED TO 5/23/27: Band",
+        // "CANCELLED: Band"). Drop rescheduled/cancelled (their feed date is stale/wrong), and
+        // strip a leading status prefix off everything else so the display name is clean.
+        if (/^\s*(rescheduled|cancell?ed|postponed)\b/i.test(nameText)) continue;
+        nameText = nameText.replace(/^\s*(sold\s*out)\s*[:\-–]\s*/i, '').trim();
+        if (!nameText) continue;
+        const age = /21/.test(ev.venue && ev.venue.age_restriction || '') ? '21+' : 'All ages';
+        const soldOut = ev.status === 'soldOut' || (ev.ticket_availability && ev.ticket_availability.is_sold_out);
+        out.push({
+          id: hashId('wlcr:' + V.venue + ':' + (ev.id || nameText)),
+          url: ev.url || V.base,
+          img: (ev.logo && ev.logo.url) || '',
+          t: 'music',
+          n: nameText.slice(0, 90),
+          v: V.venue,
+          a: `${V.venue}, Portland, OR`,
+          d: fmtLocal(start, true),
+          p: soldOut ? 'Sold out' : wlcrPrice(ev.ticket_availability),
+          age,
+          src: 'Venue site',
+          promo: false,
+          lat: V.lat, lng: V.lng,
+          desc: (ev.music_properties && ev.music_properties.presented_by
+            ? `${nameText} at ${V.venue}, presented by ${ev.music_properties.presented_by}.`
+            : `${nameText} live at ${V.venue}.`).slice(0, 160),
+          tags: ['live music'],
+        });
+        kept++;
+      }
+      console.log(`[wlcr] ${V.venue} -> ${kept} events`);
+    } catch (e) { console.log(`[wlcr] ${V.venue} failed: ${e.message}`); }
+  }
+  return out;
+}
+
 // ---------- SOURCE: EverOut (experimental - content-anchored, fail-soft) ----------
 const EVEROUT_CATS = [
   ['community', 'community'], ['festivals', 'festival'], ['live-music', 'music'],
@@ -605,6 +682,7 @@ async function fetchEverOut() {
 function main() {
   return fetchTM().then(async raw => {
     const tm = normalizeTM(raw);
+    const wlcr = await fetchWLCR();
     const ics = await fetchFeeds();
     const venuePages = await fetchVenuePages();
     const calagator = await fetchCalagator();
@@ -615,7 +693,7 @@ function main() {
     // Dedupe: curated > Ticketmaster > calendar feeds > EverOut
     const seen = new Set(curated.map(e => normKey(e.n, e.d)));
     const merged = [...curated];
-    for (const list of [tm, ics, venuePages, calagator, seatgeek, everout]) {
+    for (const list of [tm, wlcr, ics, venuePages, calagator, seatgeek, everout]) {
       for (const e of list) {
         const k = normKey(e.n, e.d);
         if (seen.has(k)) continue;
@@ -624,7 +702,7 @@ function main() {
       }
     }
     merged.length = Math.min(merged.length, MAX_EVENTS);
-    console.log(`Sources: curated ${curated.length}, ticketmaster ${tm.length}, ics ${ics.length}, venue-pages ${venuePages.length}, calagator ${calagator.length}, seatgeek ${seatgeek.length}, everout ${everout.length}`);
+    console.log(`Sources: curated ${curated.length}, ticketmaster ${tm.length}, wlcr ${wlcr.length}, ics ${ics.length}, venue-pages ${venuePages.length}, calagator ${calagator.length}, seatgeek ${seatgeek.length}, everout ${everout.length}`);
 
     // Prune past one-off events (recurring entries without a year always stay).
     // Multi-day ranges are kept through their end day.
