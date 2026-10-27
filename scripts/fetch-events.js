@@ -557,9 +557,12 @@ async function fetchWLCR() {
       let kept = 0;
       for (const ev of rows) {
         if (!ev || ev.listed === false || !ev.name || !ev.start) continue;
-        const local = ev.start.local; // "2026-11-19T20:00:00"
+        const local = ev.start.local; // "2026-11-19T20:00:00" (already in venue-local time)
         const m = local && local.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
         if (!m) continue;
+        const localDate = `${m[1]}-${m[2]}-${m[3]}`; // "2026-11-19"
+        const localTime = `${m[4]}:${m[5]}`;         // "20:00"
+        // Window check only (±1 day slack absorbs any runner-vs-LA tz drift).
         const start = new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]);
         if (isNaN(start) || start.getTime() < Date.now() - 86400000 || start.getTime() > horizon) continue;
         let nameText = decodeEntities((ev.name.text || '').replace(/<[^>]*>/g, '')).trim();
@@ -580,7 +583,7 @@ async function fetchWLCR() {
           n: nameText.slice(0, 90),
           v: V.venue,
           a: `${V.venue}, Portland, OR`,
-          d: fmtLocal(start, true),
+          d: fmtDate(localDate, localTime),
           p: soldOut ? 'Sold out' : wlcrPrice(ev.ticket_availability),
           age,
           src: 'Venue site',
