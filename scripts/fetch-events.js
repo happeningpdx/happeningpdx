@@ -17,7 +17,7 @@ const SEATGEEK_ID = process.env.SEATGEEK_CLIENT_ID || '';
 const CENTER = '45.5231,-122.6765'; // Portland
 const RADIUS_MILES = 30;
 const DAYS_AHEAD = 365;
-const MAX_EVENTS = 600;
+const MAX_EVENTS = 1500;
 
 // Ticketmaster segment/genre -> happeningpdx category
 function mapCategory(cls) {
@@ -693,7 +693,7 @@ function main() {
     // Dedupe: curated > Ticketmaster > calendar feeds > EverOut
     const seen = new Set(curated.map(e => normKey(e.n, e.d)));
     const merged = [...curated];
-    for (const list of [tm, wlcr, ics, venuePages, calagator, seatgeek, everout]) {
+    for (const list of [wlcr, tm, ics, venuePages, calagator, seatgeek, everout]) {
       for (const e of list) {
         const k = normKey(e.n, e.d);
         if (seen.has(k)) continue;
